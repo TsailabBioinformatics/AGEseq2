@@ -79,7 +79,7 @@ class ASTarget(object):
             subprocess.call(muscle_cline, shell=True)
 
         else:
-            exit("No specified aligner %s available", aligner)
+            exit(f"No specified aligner {aligner} available")
         target_alignment = AlignIO.read(ALIGNED_TARGET_FILE, "fasta")
         self.add_target_alignment(target_alignment)
         return target_alignment

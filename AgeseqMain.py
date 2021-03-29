@@ -364,7 +364,7 @@ def check_blat():
         print("OS couldn't be determined!")
         exit
     if not os.path.exists(DEF_BLAT_PATH):
-        print("BLAT couldn't be located at " + DEF_BLAT_PATH)
+        print("BLAT couldn't be located at " + str(DEF_BLAT_PATH))
         exit
     else:
         print("BLAT is located at " + DEF_BLAT_PATH)
@@ -373,7 +373,7 @@ def check_blat():
 
 def load_target():
     #Load target
-    v1_targetfile= pwd + "\\targets.txt"
+    v1_targetfile= pwd / "targets.txt"
     if os.path.exists(v1_targetfile):
         print("Target File is found:" + str(v1_targetfile))
         UTarget = AgeseqIO.readv1TargetFile(v1_targetfile)
