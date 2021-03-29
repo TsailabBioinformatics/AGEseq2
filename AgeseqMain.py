@@ -12,15 +12,17 @@ import AgeseqIO
 import subprocess
 from collections import defaultdict
 from Bio import Seq
-
-pwd = os.path.dirname(__file__)
+import pathlib
+from pathlib import Path
+pwd = pathlib.Path.cwd()
+# pwd = os.path.dirname(__file__)
 user_os = sys.platform
 prew_path = os.getcwd()
 os.chdir(pwd)
-READS_PATH = pwd+"\\reads"
+READS_PATH = pwd / "reads"
 TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 READS_FILE_LIST = list()
-DEF_BLAT_PATH = pwd + "\\blat"
+DEF_BLAT_PATH = pwd / "blat"
 #record for script running
 sysdatetime = datetime.now()
 dt_string = sysdatetime.strftime("%Y%m%d_%H_%M_%S")
@@ -330,7 +332,8 @@ def psl_parse(read_file, target_file, blat_out):
 
 def check_conf():
     # checking the configuration file
-    fp_AGEseqConf = pwd + "\\AGEseq.conf"
+    fp_AGEseqConf = pwd / "AGEseq.conf"
+    print(fp_AGEseqConf)
     if os.path.exists(fp_AGEseqConf):
         print("Configuration File is found:"+str(fp_AGEseqConf))
         param = ageconf.readConfigFile(fp_AGEseqConf)
@@ -354,9 +357,9 @@ def check_blat():
     # checking environment blat
 
     if "win" in user_os:
-        DEF_BLAT_PATH = pwd + "\\blat.exe"
+        DEF_BLAT_PATH = pwd / "blat.exe"
     elif "linux" in user_os or "mac" in user_os:
-        DEF_BLAT_PATH = pwd + "\\blat"
+        DEF_BLAT_PATH = pwd / "blat"
     else:
         print("OS couldn't be determined!")
         exit
