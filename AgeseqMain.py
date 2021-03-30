@@ -51,14 +51,14 @@ def main():
     logfile.write("Polymorphic sites in targets:"+"\n")
     logfile.write(str(target_feature)+"\n")
     USER_READSFILE_LIST = get_reads_file()
-    #for loop
+    # for loop for what #issue
     for urfile in USER_READSFILE_LIST:
         read_file = AgeseqIO.readsToSample(urfile)
         read2fas_file = str(urfile)+".fa"
         read_file.toFastaFile(read2fas_file)
         # Run blat
         blat_outfmt="psl"
-        os_blat = "blat.exe"
+        os_blat = "blat"
         file_blat_in = read2fas_file
         blat_out = f'{file_blat_in}_blat_crispr.psl'
         blat_cmd = f'{os_blat} {TEMP_TARGET_FILE} {file_blat_in} ' \
@@ -113,7 +113,7 @@ def assign_mask(assigned_core, mismatch_collection,
         coremismatch = as_core.getPSLMismatch()
         coremismatch_count = as_core.getMismatchCount()
         coremismatchstr = as_core.printmismatch()
-        coreINDEL = as_core.printINDEL()
+        coreINDEL = as_core.getINDEL()
         logfile.write(str(coreID)+"\t"+coreBH+"\t"+str(coreBHscore)+"\n")
         logfile.write(coremismatchstr)
         var_mask = dict()
@@ -356,9 +356,9 @@ def check_conf():
 def check_blat():
     # checking environment blat
 
-    if "win" in user_os:
+    if user_os == "win":
         DEF_BLAT_PATH = pwd / "blat.exe"
-    elif "linux" in user_os or "mac" in user_os:
+    elif "linux" in user_os or "darwin" in user_os:
         DEF_BLAT_PATH = pwd / "blat"
     else:
         print("OS couldn't be determined!")
@@ -367,7 +367,7 @@ def check_blat():
         print("BLAT couldn't be located at " + str(DEF_BLAT_PATH))
         exit
     else:
-        print("BLAT is located at " + DEF_BLAT_PATH)
+        print("BLAT is located at " + str(DEF_BLAT_PATH))
     print("AGEseq will run on a "+user_os+" machine!")
     return DEF_BLAT_PATH
 
@@ -394,8 +394,21 @@ def get_reads_file():
         exit
 
 HELP = ""
-
+import argparse
 if __name__ == '__main__':
+
+
+    parser = argparse.ArgumentParser(description='AGEseq2')
+    # parser.add_argument('integers', metavar='N', type=int, nargs='+',
+    #                     help='an integer for the accumulator')
+    parser.add_argument('--sum', dest='accumulate', action='store_const',
+                        const=sum, default=max,
+                        help='sum the integers (default: find the max)')
+
+    args = parser.parse_args()
+    # print(args.accumulate(args.integers))
+
+
     main()
     print(HELP + "\n")
     # tutorial()
