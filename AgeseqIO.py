@@ -5,11 +5,14 @@ from Bio import SearchIO
 import os, sys
 import subprocess
 import gzip
+from Bio import AlignIO
+import pathlib
+from pathlib import Path
 
-pwd = os.path.dirname(__file__)
+pwd = pathlib.Path.cwd()
 user_os = sys.platform
 
-READS_PATH = pwd+"\\reads"
+READS_PATH = pwd / "reads"
 
 TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 ALIGNED_TARGET_FILE = "TEMP_TARGET_aligned.fa"
@@ -64,22 +67,21 @@ class ASTarget(object):
         self.target_features = feature
 
     def align_target(self, aligner):
+        #issue: cross platform, assume user add to path
+        #issue: temp_target_file
         """Aligning sequences in the target file with the aligner provided.
            Write the aligned targets into a file and add alignment to the
            ASTarget object. Then return the alignment.
         """
-        from Bio import AlignIO
-        muscle_executable = pwd + "\\muscle.exe"
-        if os.path.exists(muscle_executable):
-            muscle_executable = "muscle.exe"
-            muscle_cline = f'{muscle_executable}' \
-                           f' -in {TEMP_TARGET_FILE}' \
-                           f' -out {ALIGNED_TARGET_FILE}'
-            print("Running muscle as:\n"+str(muscle_cline))
-            subprocess.call(muscle_cline, shell=True)
+        
+        muscle_executable = "muscle"
+        
+        muscle_cline = f'{muscle_executable}' \
+                        f' -in {TEMP_TARGET_FILE}' \
+                        f' -out {ALIGNED_TARGET_FILE}'
+        print("Running muscle as:\n"+str(muscle_cline))
+        subprocess.call(muscle_cline, shell=True)
 
-        else:
-            exit(f"No specified aligner {aligner} available")
         target_alignment = AlignIO.read(ALIGNED_TARGET_FILE, "fasta")
         self.add_target_alignment(target_alignment)
         return target_alignment
@@ -404,18 +406,23 @@ def readsToSample(reads_file_id):
 
     :param reads_file_id: str, a read file name
     """
-    rf = READS_PATH+"\\"+reads_file_id
+    rf = str(READS_PATH)+"/"+reads_file_id
+    print(reads_file_id)
     if reads_file_id.endswith("gz"):
         file_handler = gzip.gzopen(rf, "rt")
     elif reads_file_id.endswith("fastq"):
         file_handler = open(rf, "r")
     elif reads_file_id.endswith("fasta"):
-        print("fasta format for reads are currently not supported!\n")
-        exit
+        exit("fasta format for reads are currently not supported!\n")
     else:
-        exit
-    seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fastq"))
-    print("fastq file is opened!")
+        #issue: do something to omit error
+        exit("?line 419")
+    #issue use try to catch both fasta and fastq
+    try:
+        seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fastq"))
+    except:
+        seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fasta"))
+    print("fasta/fastq file is opened!")
     return ASSample(seq_parser)
 
 def parseBLATlegacymod(psl_file):
