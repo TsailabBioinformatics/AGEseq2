@@ -79,11 +79,15 @@ def main():
                                               indel_collection,
                                               target_assigned_count)
         logfile.write("Assignment begins!"+"\n")
+
+        #issue add comment
         file_assign_sum = assign_mask(assigned_core, mismatch_collection,
                     indel_collection, target_assigned_count, WOBBLE_BASE)
+        #issue add comment
         for t in file_assign_sum:
             for ep in file_assign_sum[t]:
                 logfile.write(t+"\t"+ep+"\t"+str(file_assign_sum[t][ep])+"\n")
+        #issue add comment
         for eachtarget in sorted(target_assigned_count):
             target_assigned_prop = round(target_assigned_count[eachtarget]/len(assigned_core)*100, 1)
             logfile.write("\n"+eachtarget+"\t"+str(target_assigned_count[eachtarget])+"\t"+
@@ -138,7 +142,9 @@ def assign_mask(assigned_core, mismatch_collection,
                     else:
                         logfile.write(str_mismatch+"\t"+str(misfreq)+" kept!\n")
         if len(coreINDEL) > 0:
+
             logfile.write(str(len(coreINDEL))+" INDEL(s) is/are found!\n")
+            print(coreINDEL)
             for indel in coreINDEL:
                 totalindel = indel_collection[coreBH][indel]
                 indelfreq = round(totalindel/target_assigned_count[coreBH], 3)
@@ -154,6 +160,7 @@ def assign_mask(assigned_core, mismatch_collection,
         as_core.assignEditPat()
         coreEP = as_core.getEditPat()
         if type(coreEP) is list:
+            #issue
             coreEP = coreEP[0]
         if coreBH in file_summary:
             if coreEP in file_summary[coreBH]:
@@ -387,7 +394,9 @@ def load_target():
 def get_reads_file():
     if os.path.isdir(READS_PATH):
         print("Found Reads Directory: " + str(READS_PATH) + " successfully!")
-        READS_FILE_LIST = os.listdir(READS_PATH)
+        import glob
+        READS_FILE_LIST = glob.glob(os.path.join(READS_PATH, '*'))
+        
         return READS_FILE_LIST
     else:
         print(str(READS_PATH) + "doesn't exists")
