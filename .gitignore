@@ -1,2 +1,6 @@
 __pycache__
 *.log
+
+# Filesystem/OS Specific
+.DS_Store/
+.vscode/
