@@ -3,10 +3,7 @@ from Bio import SeqIO
 import gzip
 import os
 
-# TODO: find out if we want to raise errors or handle them inside the class.  They can be returned as None or raise an
-#       error.
-# TODO: find out how much we want to enforce in terms of file consistency.  Do we want to assume fasta/fastq?  Or if the
-#       file is not named correctly, shoudl we just go ahead and error?
+# TODO: raise errors to be handled in main - value errors then need to be handled
 
 
 class ReadsContextManager:
@@ -113,7 +110,7 @@ if __name__ == "__main__":
     import unittest
     os.environ['RH_TEST'] = '1'
     rh = ReadsHandler(os.getcwd())
-    # contents = rh.handle('SBHP72_S72_L001_R2_001.fastq.gz')
+    contents = rh.handle('SBHP73_S73_L001_R1_001.fastq')
     # print(contents)
 
     class ReadsHandlerTests(unittest.TestCase):
