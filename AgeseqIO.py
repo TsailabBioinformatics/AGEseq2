@@ -405,12 +405,14 @@ def readv1TargetFile(v1_target):
     return USER_TARGETFILE
 
 
-def readsToSample(reads_file_id):
+def readsToSample(reads_file_path):
     """Read the specified read file and returns a sample object
 
     :param reads_file_id: str, a read file name
     """
-    rf = str(READS_PATH)+"/"+reads_file_id
+
+    #issue, chekc with Tom to see his refactor result
+    rf = reads_file_path
     print(reads_file_id)
     if reads_file_id.endswith("gz"):
         file_handler = gzip.gzopen(rf, "rt")
