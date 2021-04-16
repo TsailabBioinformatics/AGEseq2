@@ -3,6 +3,7 @@ from Bio import SeqIO
 import gzip
 import os
 
+# TODO: find out if we want to raise errors or handle them inside the class.  They can be returned as None or raise an error.
 
 class ReadsHandler:
 
@@ -11,10 +12,11 @@ class ReadsHandler:
 
 	@property
 	def reads_dir(self):
-		'''This property is set outside of init to ensure path and OS consistency.
+		"""This property is set outside of init to ensure path and OS consistency.
 		It also allows test files without crowding or using separate unit tests
 		outside this module.
-		'''
+		"""
+		#
 		if not isinstance(self.working_dir, PurePath):
 			self.working_dir = Path(self.working_dir)
 
@@ -23,15 +25,17 @@ class ReadsHandler:
 
 		return self.working_dir / 'reads'
 
-	def _is_compressed(self, file_loc):
-		''' Returns whether the file is actually gzipped or not. '''
+	@staticmethod
+	def _is_compressed(file_loc):
+		""" Returns whether the file is actually gzipped or not. """
 		with open(file_loc, 'rb') as f:
 			return f.read(2) == b'\x1f\x8b'  # magic number
 
-	def _get_file_type(self, file_id):
-		''' Biopython needs the filetype as fasta or fastq. This attempts to 
+	@staticmethod
+	def _get_file_type(file_id):
+		""" Biopython needs the filetype as fasta or fastq. This attempts to
 		extract it.
-		'''
+		"""
 		if 'fastq' in file_id:
 			file_type = 'fastq'
 		elif 'fasta' in file_id:
@@ -42,10 +46,10 @@ class ReadsHandler:
 		return file_type
 
 	def handle(self, file_id):
-		''' Receives a file_id and performs fasta/fastq and gzip checks.  If
-		everything is fine, this uses BioPython to parse the file and return 
+		""" Receives a file_id and performs fasta/fastq and gzip checks.  If
+		everything is fine, this uses BioPython to parse the file and return
 		a dictionary of the file's contents.
-		'''
+		"""
 		file_loc = self.reads_dir / file_id
 
 		if not file_loc.is_file():
@@ -63,13 +67,14 @@ class ReadsHandler:
 		file_type = self._get_file_type(file_id)
 		try:
 			seq_parser = SeqIO.to_dict(SeqIO.parse(file_loc, file_type))
-		except ValueError as e:
+		except ValueError as ex:
 			print("!! ERROR PARSING FILE.  BioPython rejected contents. !!")
+			print(ex)
 			return None
 		finally:
 			file_loc.close()
 		
-		# Bind a null return since BioPython can pass an empty dictionary
+		# Bind a null return for consistency since BioPython can pass an empty dictionary
 		if seq_parser == {}:
 			file_loc.close()
 			raise ValueError("Error parsing!  BioPython returned empty dict.")
@@ -83,27 +88,30 @@ if __name__ == "__main__":
 	os.environ['RH_TEST'] = '1'
 
 	rh = ReadsHandler(os.getcwd())
-	
+
 	class ReadsHandlerTests(unittest.TestCase):
-		def test_good_file(self):
-			assert rh.handle('SBHP72_S72_L001_R2_001.fastq') != None
-		
-		def test_missing_compression_label(self):
-			assert rh.handle('FASTA_MISSING_GZ.fasta') != None
-				
-		def test_false_compression_label(self):
-			assert rh.handle('FASTA_FALSE_GZ.fasta.gz') != None
-		
+		@staticmethod
+		def test_good_file():
+			assert rh.handle('SBHP72_S72_L001_R2_001.fastq') is not None
+
+		@staticmethod
+		def test_missing_compression_label():
+			assert rh.handle('FASTA_MISSING_GZ.fasta') is not None
+
+		@staticmethod
+		def test_false_compression_label():
+			assert rh.handle('FASTA_FALSE_GZ.fasta.gz') is not None
+
 		def test_bad_filename(self):
 			self.assertRaises(
 				ValueError,
 				rh.handle,
 				'badfile.txt'
 			)
-		
-		def test_bad_input(self):
-			assert rh.handle('badfile.fastq') == None
-			
-	
+
+		@staticmethod
+		def test_bad_input():
+			assert rh.handle('badfile.fastq') is None
+
+
 	unittest.main()
-	
