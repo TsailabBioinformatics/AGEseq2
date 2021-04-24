@@ -15,6 +15,7 @@ user_os = sys.platform
 
 READS_PATH = pwd / "reads"
 
+#issue remove this part
 TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 ALIGNED_TARGET_FILE = "TEMP_TARGET_aligned.fa"
 prew_path = os.getcwd()
@@ -405,14 +406,14 @@ def readv1TargetFile(v1_target):
     return USER_TARGETFILE
 
 
-def readsToSample(reads_file_path):
+def readsToSample(reads_file_id):
     """Read the specified read file and returns a sample object
 
     :param reads_file_id: str, a read file name
     """
 
-    #issue, chekc with Tom to see his refactor result
-    rf = reads_file_path
+    #issue, check with Tom to see his solution
+    rf = reads_file_id
     print(reads_file_id)
     if reads_file_id.endswith("gz"):
         file_handler = gzip.gzopen(rf, "rt")

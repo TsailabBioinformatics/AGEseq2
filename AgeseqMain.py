@@ -20,8 +20,8 @@ pwd = pathlib.Path.cwd()
 user_os = sys.platform
 prew_path = os.getcwd()
 os.chdir(pwd)
-READS_PATH = pwd / "reads"
-TEMP_TARGET_FILE = "TEMP_TARGET.fa"
+# READS_PATH = pwd / "reads"
+# TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 READS_FILE_LIST = list()
 DEF_BLAT_PATH = pwd / "blat"
 # record for script running
@@ -32,13 +32,6 @@ logfile = open(logfile_name, "w")
 WELCOM_MESSAGE = "Thank you for using AGEseq!\n"
 mod = "legacy"
 logfile.write(WELCOM_MESSAGE)
-
-READ_SNP_MINR_FREQ = 0.05  # Target specific, not overall frequency
-READ_INDEL_MINR_FREQ = 0.01  # Target specific, not overall frequency
-READ_SNP_MINIMAL_SUPPORT = 3
-READ_INDEL_MINIMAL_SUPPORT = 5
-WOBBLE_BASE = True
-WOBBLE_FREQ_RANGE = (0.35, 0.65)
 
 
 def main():
@@ -166,6 +159,7 @@ def assign_mask(assigned_core, mismatch_collection,
         as_core.updateMask(var_mask)
         as_core.assignEditPat()
         coreEP = as_core.getEditPat()
+        # EP Editing pattern
         if type(coreEP) is list:
             # issue
             coreEP = coreEP[0]
@@ -194,7 +188,7 @@ def psl_parse(read_file, target_file, blat_out):
     tier_count = 0
     number_q_in_psl = len(psl_dict)
     perc_hit = number_q_in_psl/number_reads_in_sample*100
-    #to2file = open("test_pa.out", "w")
+    # to2file = open("test_pa.out", "w")
     logfile.write("%i reads have hits to the target sequences provided (%d%% of the sample)!" % (
         number_q_in_psl, perc_hit)+"\n")
     for qid in psl_dict:
@@ -290,16 +284,16 @@ def psl_parse(read_file, target_file, blat_out):
                                             ][MISMATCH[mismatch_count]] = 1
                     mismatch_count += 1
             # logfile.write(str(hit_frag_seq[i])+"\n")
-            #logfile.write(str(query_frag_seq[i]) +"\n")
-            #logfile.write(str("".join(blast_link)) + "\n\n")
-        #to2file.write(str(MISMATCH) + "\n\n")
+            # logfile.write(str(query_frag_seq[i]) +"\n")
+            # logfile.write(str("".join(blast_link)) + "\n\n")
+        # to2file.write(str(MISMATCH) + "\n\n")
 
         if mismatch == 0:
             pass
         else:
             ASCore_collection[query].updateMismatch(MISMATCH)
             ASCore_collection[query].updateMismatchCount(mismatch)
-        #logfile.write(str(ASCore_collection[query].mismatch_count)+" Mismatch(es)\t"+str(ASCore_collection[query].getPSLMismatch())+"\n")
+        # logfile.write(str(ASCore_collection[query].mismatch_count)+" Mismatch(es)\t"+str(ASCore_collection[query].getPSLMismatch())+"\n")
         for i in range(0, q_gap):
             if h_start_all[i] + h_span_all[i] < h_start_all[i+1]:
                 del_start = h_start_all[i] + h_span_all[i]
@@ -313,7 +307,7 @@ def psl_parse(read_file, target_file, blat_out):
                     PATTERN_COLLECTION[q_besthit[query]][del_pat] += 1
                 else:
                     PATTERN_COLLECTION[q_besthit[query]][del_pat] = 1
-                #logfile.write(del_pat + "\n\n")
+                # logfile.write(del_pat + "\n\n")
         for i in range(0, h_gap):
             if h_start_all[i] + h_span_all[i] == h_start_all[i+1]:
                 ins_start_ontarget = h_start_all[i+1]
@@ -331,13 +325,14 @@ def psl_parse(read_file, target_file, blat_out):
                 PATTERN_COLLECTION[q_besthit[query]][ins_pat] += 1
             else:
                 PATTERN_COLLECTION[q_besthit[query]][ins_pat] = 1
-            #logfile.write(ins_pat + "\n\n")
+            # logfile.write(ins_pat + "\n\n")
     return ASCore_collection, MISMATCH_COLLECTION, PATTERN_COLLECTION, target_assigned_count
 
 
 '''
     for eachtarget in sorted(target_assigned_count):
-        target_assigned_prop = round(target_assigned_count[eachtarget]/number_q_in_psl*100, 1)
+        target_assigned_prop = round(
+            target_assigned_count[eachtarget]/number_q_in_psl*100, 1)
         to2file.write("\n"+eachtarget+"\t"+str(target_assigned_count[eachtarget])+"\t"+
                       str(target_assigned_prop)+"% of assigned reads"+"\n")
     to2file.write("\n"+str(len(ASCore_collection))+"\n")
@@ -348,7 +343,8 @@ def psl_parse(read_file, target_file, blat_out):
             to2file.write(hit+"\t"+pat+"\t"+str(PATTERN_COLLECTION[hit][pat])+"\n")
     for hit in sorted(MISMATCH_COLLECTION):
         for pat in sorted(MISMATCH_COLLECTION[hit], key=MISMATCH_COLLECTION[hit].get ,reverse=True):
-            mis_freq = str(round(MISMATCH_COLLECTION[hit][pat]/target_assigned_count[hit],3))
+            mis_freq = str(
+                round(MISMATCH_COLLECTION[hit][pat]/target_assigned_count[hit],3))
             to2file.write(hit+"\t"+pat+"\t"+str(MISMATCH_COLLECTION[hit][pat])+
                           "\t"+mis_freq+"\n")
 '''
@@ -376,7 +372,7 @@ def check_conf():
         print("For details, please refer to the manual!")
         print("If you want to run AGEseq with the default please use -d mode")
         print("Ageseq has stopped!")
-        exit
+        exit()
 
 
 def check_blat():
@@ -388,10 +384,10 @@ def check_blat():
         DEF_BLAT_PATH = pwd / "blat"
     else:
         print("OS couldn't be determined!")
-        exit
+        exit()
     if not os.path.exists(DEF_BLAT_PATH):
         print("BLAT couldn't be located at " + str(DEF_BLAT_PATH))
-        exit
+        exit()
     else:
         print("BLAT is located at " + str(DEF_BLAT_PATH))
     print("AGEseq will run on a "+user_os+" machine!")
@@ -409,7 +405,7 @@ def load_target():
         return UTarget
     else:
         print("Couldn't locate target file:"+str(v1_targetfile))
-        exit
+        exit()
 
 
 def get_reads_file():
@@ -421,7 +417,7 @@ def get_reads_file():
         return READS_FILE_LIST
     else:
         print(str(READS_PATH) + "doesn't exists")
-        exit
+        exit()
 
 
 HELP = ""
@@ -436,26 +432,36 @@ if __name__ == '__main__':
     # --READ_INDEL_MINIMAL_SUPPORT 5 \
     # --WOBBLE_BASE "true" \
     # --WOBBLE_FREQ_RANGE 0.35 0.65
-    parser = argparse.ArgumentParser(description='AGEseq2')
-    parser.add_argument('target_file', metavar='t', type=str,
+    parser = argparse.ArgumentParser(description='AGEseq2 introduction words #issue')
+    #issue positional for now, should change it
+    parser.add_argument('-t', type=str,
                         help='fasta format target file')
-    parser.add_argument('directory of reads', metavar='r', type=str,
+    parser.add_argument('-r', type=str,
                         help='fasta/fastq format reads dir')
-    parser.add_argument('--READ_SNP_MINR_FREQ', dest='READ_SNP_MINR_FREQ', type=float,
+    parser.add_argument('--READ_SNP_MINR_FREQ', type=float,
                         help='')
-    parser.add_argument('--READ_INDEL_MINR_FREQ', dest='READ_INDEL_MINR_FREQ', type=float,
+    parser.add_argument('--READ_INDEL_MINR_FREQ', type=float,
                         help='')
-    parser.add_argument('--READ_SNP_MINIMAL_SUPPORT', dest='READ_SNP_MINIMAL_SUPPORT', type=float,
+    parser.add_argument('--READ_SNP_MINIMAL_SUPPORT', type=float,
                         help='')
-    parser.add_argument('--READ_INDEL_MINIMAL_SUPPORT', dest='READ_INDEL_MINIMAL_SUPPORT', type=float,
+    parser.add_argument('--READ_INDEL_MINIMAL_SUPPORT', type=float,
                         help='')
-    parser.add_argument('--WOBBLE_BASE', dest='WOBBLE_BASE', type=float,
+    parser.add_argument("-w", "--WOBBLE_BASE", help="remove wobble base",
+                    action="store_true")
+    parser.add_argument('--WOBBLE_FREQ_RANGE', nargs=2, type=float,
                         help='')
-    parser.add_argument('--WOBBLE_FREQ_RANGE', dest='WOBBLE_FREQ_RANGE', nargs=2, type=float,
-                        help='')
-    args = parser.parse_args()
-    # print(args.accumulate(args.integers))
+    args=parser.parse_args()
 
+    TEMP_TARGET_FILE = args.t
+    READS_PATH = args.r
+
+    #issue assign value if specified in command
+    READ_SNP_MINR_FREQ = 0.05  # Target specific, not overall frequency
+    READ_INDEL_MINR_FREQ = 0.01  # Target specific, not overall frequency
+    READ_SNP_MINIMAL_SUPPORT = 3
+    READ_INDEL_MINIMAL_SUPPORT = 5
+    WOBBLE_BASE = True
+    WOBBLE_FREQ_RANGE = (0.35, 0.65)
+    
+    print(READS_PATH)
     main()
-    print(HELP + "\n")
-    # tutorial()
