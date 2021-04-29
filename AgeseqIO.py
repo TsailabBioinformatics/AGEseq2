@@ -9,6 +9,7 @@ import gzip
 from Bio import AlignIO
 import pathlib
 from pathlib import Path
+from modules.reads_handler import ReadsHandler
 
 pwd = pathlib.Path.cwd()
 user_os = sys.platform
@@ -19,6 +20,8 @@ TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 ALIGNED_TARGET_FILE = "TEMP_TARGET_aligned.fa"
 prew_path = os.getcwd()
 
+# Ensures only one ReadHandler object is created to handle all files
+READS_HANDLER = ReadsHandler()
 
 class ASTarget(object):
     """Ageseq target class for storaging target sequence infomation
@@ -40,7 +43,7 @@ class ASTarget(object):
 
     def toFastaFile(self, out_file_name):
         """Write all target sequences into the given out_file_name file
-        for later running blat.
+        for later running blat_win_x84.
         """
         ofile = open(out_file_name, 'w')
         for x in self.seq_dict:
@@ -410,21 +413,23 @@ def readsToSample(reads_file_id):
 
     :param reads_file_id: str, a read file name
     """
-    rf = str(READS_PATH)+"/"+reads_file_id
-    print(reads_file_id)
-    if reads_file_id.endswith("gz"):
-        file_handler = gzip.gzopen(rf, "rt")
-    else:
-        file_handler = open(rf, "r")
+    return ASSample(READS_HANDLER.handle(reads_file_id))
 
-    # issue use try to catch both fasta and fastq
-    # to do if else try
-    try:
-        seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fastq"))
-    except:
-        seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fasta"))
-    print("fasta/fastq file is opened!")
-    return ASSample(seq_parser)
+    # rf = reads_file_id
+    # print(reads_file_id)
+    # if reads_file_id.endswith("gz"):
+    #     file_handler = gzip.gzopen(rf, "rt")
+    # else:
+    #     file_handler = open(rf, "r")
+    #
+    # # issue use try to catch both fasta and fastq
+    # # to do if else try
+    # try:
+    #     seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fastq"))
+    # except:
+    #     seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fasta"))
+    # print("fasta/fastq file is opened!")
+    # return ASSample(seq_parser)
 
 
 def parseBLATlegacymod(psl_file):

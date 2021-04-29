@@ -361,12 +361,13 @@ def check_conf():
 
 
 def check_blat():
-    # checking environment blat
-
+    """ Blat is compiled separately for mac/linux/windows. """
     if user_os == "win":
-        DEF_BLAT_PATH = pwd / "blat.exe"
-    elif "linux" in user_os or "darwin" in user_os:
-        DEF_BLAT_PATH = pwd / "blat"
+        DEF_BLAT_PATH = pwd / "blat" / "blat_win"
+    elif "linux" in user_os.lower():
+        DEF_BLAT_PATH = pwd / "blat" / "blat_linux"
+    elif "darwin" in user_os.lower():
+        DEF_BLAT_PATH = pwd / "blat" / "blat_mac"
     else:
         print("OS couldn't be determined!")
         exit

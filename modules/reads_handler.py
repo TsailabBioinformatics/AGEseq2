@@ -95,9 +95,8 @@ class ReadsHandler:
             try:
                 seq_parser = SeqIO.to_dict(SeqIO.parse(read_file, file_type))
             except ValueError as ex:
-                print("!! ERROR PARSING FILE.  BioPython rejected contents. !!")
-                print(ex)
-                return None
+                # Propagate error up to calling function
+                raise
 
         if seq_parser == {}:
             # return None
@@ -116,26 +115,34 @@ if __name__ == "__main__":
     class ReadsHandlerTests(unittest.TestCase):
         @staticmethod
         def test_good_file():
+            """ Ensures a proper fastq file has return information. """
             assert rh.handle('SBHP72_S72_L001_R2_001.fastq') is not None
 
         @staticmethod
         def test_missing_compression_label():
+            """ Checks a gzipped fasta file is properly decompressed. """
             assert rh.handle('FASTA_MISSING_GZ.fasta') is not None
 
         @staticmethod
         def test_false_compression_label():
+            """ Checks a false compression label is not decompressed. """
             assert rh.handle('FASTA_FALSE_GZ.fasta.gz') is not None
 
         def test_bad_filename(self):
+            """ Checks an improper file throws a ValueError. """
             self.assertRaises(
                 ValueError,
                 rh.handle,
                 'badfile.txt'
             )
 
-        @staticmethod
-        def test_bad_input():
-            assert rh.handle('badfile.fastq') is None
+        def test_bad_input(self):
+            """ Ensures errors from BioPython are propagated up to callers. """
+            self.assertRaises(
+                ValueError,
+                rh.handle,
+                'badfile.fastq'
+            )
 
 
     unittest.main()
