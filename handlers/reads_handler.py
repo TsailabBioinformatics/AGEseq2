@@ -52,7 +52,7 @@ class ReadsHandler:
         if os.environ.get('RH_TEST'):
             return self.working_dir / 'reads_handler_test_files'
 
-        return self.working_dir / 'reads'
+        return self.working_dir
 
     @staticmethod
     def _is_compressed(file_loc):
@@ -83,6 +83,7 @@ class ReadsHandler:
 
         if not file_loc.is_file():
             raise ValueError("Error finding file {}".format(file_loc))
+
 
         mode = 'r'
         compressed = False
