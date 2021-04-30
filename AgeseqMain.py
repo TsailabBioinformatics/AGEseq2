@@ -307,12 +307,12 @@ def psl_parse(read_file, target_file, blat_out):
                     ins_end_onquery = q_start_all[i] - 1
                 ins_size = ins_end_onquery - ins_start_onquery +1
                 ins_seq = q_seq[ins_start_onquery: ins_start_onquery+ins_size]
-            ins_pat = str(ins_start_ontarget) + "I" + str(ins_size) + ":" + str(ins_seq)
-            ASCore_collection[query].addINDEL(ins_pat)
-            if ins_pat in PATTERN_COLLECTION[q_besthit[query]]:
-                PATTERN_COLLECTION[q_besthit[query]][ins_pat] += 1
-            else:
-                PATTERN_COLLECTION[q_besthit[query]][ins_pat] = 1
+                ins_pat = str(ins_start_ontarget) + "I" + str(ins_size) + ":" + str(ins_seq)
+                ASCore_collection[query].addINDEL(ins_pat)
+                if ins_pat in PATTERN_COLLECTION[q_besthit[query]]:
+                    PATTERN_COLLECTION[q_besthit[query]][ins_pat] += 1
+                else:
+                    PATTERN_COLLECTION[q_besthit[query]][ins_pat] = 1
             #logfile.write(ins_pat + "\n\n")
     return ASCore_collection, MISMATCH_COLLECTION, PATTERN_COLLECTION, target_assigned_count
 '''
@@ -408,15 +408,39 @@ HELP = ""
 import argparse
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(description='AGEseq2 introduction words #issue')
+    #issue positional for now, should change it
+    parser.add_argument('-t', type=str,
+                        help='fasta format target file')
+    parser.add_argument('-r', type=str,
+                        help='fasta/fastq format reads dir')
+    parser.add_argument('--READ_SNP_MINR_FREQ', type=float,
+                        help='')
+    parser.add_argument('--READ_INDEL_MINR_FREQ', type=float,
+                        help='')
+    parser.add_argument('--READ_SNP_MINIMAL_SUPPORT', type=float,
+                        help='')
+    parser.add_argument('--READ_INDEL_MINIMAL_SUPPORT', type=float,
+                        help='')
+    parser.add_argument("-w", "--WOBBLE_BASE", help="remove wobble base",
+                    action="store_true")
+    parser.add_argument('--WOBBLE_FREQ_RANGE', nargs=2, type=float,
+                        help='')
+    args=parser.parse_args()
 
-    parser = argparse.ArgumentParser(description='AGEseq2')
-    # parser.add_argument('integers', metavar='N', type=int, nargs='+',
-    #                     help='an integer for the accumulator')
-    parser.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    TEMP_TARGET_FILE = args.t
+    READS_PATH = args.r
 
-    args = parser.parse_args()
+    #issue assign value if specified in command
+    READ_SNP_MINR_FREQ = 0.05  # Target specific, not overall frequency
+    READ_INDEL_MINR_FREQ = 0.01  # Target specific, not overall frequency
+    READ_SNP_MINIMAL_SUPPORT = 3
+    READ_INDEL_MINIMAL_SUPPORT = 5
+    WOBBLE_BASE = True
+    WOBBLE_FREQ_RANGE = (0.35, 0.65)
+
+    print(READS_PATH)
+    main()
     # print(args.accumulate(args.integers))
 
 
