@@ -51,12 +51,13 @@ def main():
         read_file = AgeseqIO.readsToSample(urfile)
         read2fas_file = str(urfile)+".fa"
         read_file.toFastaFile(read2fas_file)
+
         # Run blat
         blat_outfmt = "psl"
         os_blat = "blat"
         file_blat_in = read2fas_file
         blat_out = f'{file_blat_in}_blat_crispr.psl'
-        blat_cmd = f'{os_blat} {TEMP_TARGET_FILE} {file_blat_in} ' \
+        blat_cmd = f'{os_blat} {TEMP_TARGET_FILE}.fa {file_blat_in} ' \
                    f' -tileSize={USER_BLCONF.tileSize}' \
                    f' -oneOff={USER_BLCONF.oneOff}' \
                    f' -maxGap={USER_BLCONF.maxGap}' \
@@ -308,6 +309,7 @@ def psl_parse(read_file, target_file, blat_out):
                 else:
                     PATTERN_COLLECTION[q_besthit[query]][del_pat] = 1
                 # logfile.write(del_pat + "\n\n")
+        # insert
         for i in range(0, h_gap):
             if h_start_all[i] + h_span_all[i] == h_start_all[i+1]:
                 ins_start_ontarget = h_start_all[i+1]
@@ -318,14 +320,14 @@ def psl_parse(read_file, target_file, blat_out):
                     ins_end_onquery = q_start_all[i] - 1
                 ins_size = ins_end_onquery - ins_start_onquery + 1
                 ins_seq = q_seq[ins_start_onquery: ins_start_onquery+ins_size]
-            ins_pat = str(ins_start_ontarget) + "I" + \
-                str(ins_size) + ":" + str(ins_seq)
-            ASCore_collection[query].addINDEL(ins_pat)
-            if ins_pat in PATTERN_COLLECTION[q_besthit[query]]:
-                PATTERN_COLLECTION[q_besthit[query]][ins_pat] += 1
-            else:
-                PATTERN_COLLECTION[q_besthit[query]][ins_pat] = 1
-            # logfile.write(ins_pat + "\n\n")
+                ins_pat = str(ins_start_ontarget) + "I" + \
+                    str(ins_size) + ":" + str(ins_seq)
+                ASCore_collection[query].addINDEL(ins_pat)
+                if ins_pat in PATTERN_COLLECTION[q_besthit[query]]:
+                    PATTERN_COLLECTION[q_besthit[query]][ins_pat] += 1
+                else:
+                    PATTERN_COLLECTION[q_besthit[query]][ins_pat] = 1
+                # logfile.write(ins_pat + "\n\n")
     return ASCore_collection, MISMATCH_COLLECTION, PATTERN_COLLECTION, target_assigned_count
 
 
@@ -401,7 +403,7 @@ def load_target():
         print("Target File is found:" + str(v1_targetfile))
         UTarget = AgeseqIO.readv1TargetFile(v1_targetfile)
         # UTarget.showAsFasta()
-        UTarget.toFastaFile(TEMP_TARGET_FILE)
+        UTarget.toFastaFile(TEMP_TARGET_FILE+'.fa')
         return UTarget
     else:
         print("Couldn't locate target file:"+str(v1_targetfile))
