@@ -4,4 +4,5 @@ __pycache__
 # Filesystem/OS Specific
 .DS_Store/
 .vscode/
+.idea/
 test
