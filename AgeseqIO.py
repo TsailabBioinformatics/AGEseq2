@@ -2,23 +2,16 @@ from collections import Counter
 from glob import glob
 from Bio import SeqIO
 from Bio import SearchIO
-import os
-import sys
+import os, sys
 import subprocess
 import gzip
-from Bio import AlignIO
-import pathlib
-from pathlib import Path
 
-pwd = pathlib.Path.cwd()
+pwd = os.path.dirname(__file__)
 user_os = sys.platform
 
-READS_PATH = pwd / "reads"
+READS_PATH = pwd+"\\reads"
 
-#issue remove this part
-TEMP_TARGET_FILE = "TEMP_TARGET.fa"
-ALIGNED_TARGET_FILE = "TEMP_TARGET_aligned.fa"
-prew_path = os.getcwd()
+prew_path=os.getcwd()
 
 
 class ASTarget(object):
@@ -30,6 +23,7 @@ class ASTarget(object):
         self.seqid_list = list()
         self.tar_aln = ""
         self.target_features = dict()
+        self.fastaname=""
         for keys in self.seq_dict:
             self.seqid_list.append(keys)
 
@@ -47,6 +41,7 @@ class ASTarget(object):
         for x in self.seq_dict:
             ofile.write(">"+x+"\n"+self.seq_dict[x]+"\n")
         ofile.close()
+        self.fastaname=out_file_name
 
     def getTargetSeq(self, tid):
         "Return the target sequence based on the ID provided."
@@ -69,21 +64,23 @@ class ASTarget(object):
         self.target_features = feature
 
     def align_target(self, aligner):
-        # issue: cross platform, assume user add to path
-        #issue: temp_target_file
         """Aligning sequences in the target file with the aligner provided.
            Write the aligned targets into a file and add alignment to the
            ASTarget object. Then return the alignment.
         """
+        from Bio import AlignIO
+        muscle_executable = pwd + "\\muscle.exe"
+        ALIGNED_TARGET_FILE = self.fastaname + ".aligned.target.fa"
+        if os.path.exists(muscle_executable):
+            muscle_executable = "muscle.exe"
+            muscle_cline = f'{muscle_executable}' \
+                           f' -in {self.fastaname}' \
+                           f' -out {ALIGNED_TARGET_FILE}'
+            print("Running muscle as:\n"+str(muscle_cline))
+            subprocess.call(muscle_cline, shell=True)
 
-        muscle_executable = "muscle"
-
-        muscle_cline = f'{muscle_executable}' \
-            f' -in {TEMP_TARGET_FILE}' \
-            f' -out {ALIGNED_TARGET_FILE}'
-        print("Running muscle as:\n"+str(muscle_cline))
-        subprocess.call(muscle_cline, shell=True)
-
+        else:
+            exit("No specified aligner %s available", aligner)
         target_alignment = AlignIO.read(ALIGNED_TARGET_FILE, "fasta")
         self.add_target_alignment(target_alignment)
         return target_alignment
@@ -173,7 +170,7 @@ class ASCore(object):
             for emis in old_mismatch:
                 if emis in self.var_mask:
                     new_mismatch.remove(emis)
-                    # logfile.write(str(old_mismatch[emis])+"\n")
+                    #logfile.write(str(old_mismatch[emis])+"\n")
             if len(new_mismatch) == 0:
                 self.editPattern = "WT"
             else:
@@ -184,7 +181,7 @@ class ASCore(object):
                 if eind in self.var_mask:
                     new_indel.remove(eind)
             if self.mismatch_count == 0:
-                old_mismatch = []
+                old_mismatch =[]
             new_mismatch = old_mismatch.copy()
             for emis in old_mismatch:
                 if emis in self.var_mask:
@@ -206,7 +203,6 @@ class ASCore(object):
         :param hsp: The hsp object from BlatIO
         """
         self.hsp = hsp
-
     def updateHSPstr(self, hspstr):
         """Adding/Update parsed HSP strings. This is a more convient way to save
         parsed HSP results. In the psl_parse function, this is used for saving
@@ -342,16 +338,14 @@ class ASCore(object):
         """Return number of mismatches plus the mimatch dictionary as one line
         string (used for printing log information).
         """
-        ostr = str(self.mismatch_count)+" Mismatch(es)\t" + \
-            str(self.getPSLMismatch())+"\n"
+        ostr = str(self.mismatch_count)+" Mismatch(es)\t"+ str(self.getPSLMismatch())+"\n"
         return ostr
 
     def getINDEL(self):
         """Returns the list of indels
         """
         if len(self.indel) == 0:
-            print("No INDEL")
-            return []
+            return "No Indels!"
         else:
             return self.indel
 
@@ -411,24 +405,19 @@ def readsToSample(reads_file_id):
 
     :param reads_file_id: str, a read file name
     """
-
-    #issue, check with Tom to see his solution
-    rf = reads_file_id
-    print(reads_file_id)
+    rf = READS_PATH+"\\"+reads_file_id
     if reads_file_id.endswith("gz"):
         file_handler = gzip.gzopen(rf, "rt")
-    else:
+    elif reads_file_id.endswith("fastq"):
         file_handler = open(rf, "r")
-
-    # issue use try to catch both fasta and fastq
-    # to do if else try
-    try:
-        seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fastq"))
-    except:
-        seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fasta"))
-    print("fasta/fastq file is opened!")
+    elif reads_file_id.endswith("fasta"):
+        print("fasta format for reads are currently not supported!\n")
+        exit
+    else:
+        exit
+    seq_parser = SeqIO.to_dict(SeqIO.parse(file_handler, "fastq"))
+    print("fastq file is opened!")
     return ASSample(seq_parser)
-
 
 def parseBLATlegacymod(psl_file):
     """Wrapper of psl to psl_dictionary.Returns a dictionary generated by
