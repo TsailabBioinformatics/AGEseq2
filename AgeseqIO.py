@@ -345,7 +345,8 @@ class ASCore(object):
         """Returns the list of indels
         """
         if len(self.indel) == 0:
-            return "No Indels!"
+            # print("No INDEL")
+            return []
         else:
             return self.indel
 
