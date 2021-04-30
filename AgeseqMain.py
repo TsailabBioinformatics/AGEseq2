@@ -15,9 +15,11 @@ from collections import defaultdict
 from Bio import Seq
 import pathlib
 from pathlib import Path
+import platform
+
 pwd = pathlib.Path.cwd()
 # pwd = os.path.dirname(__file__)
-user_os = sys.platform
+user_os = platform.system() # "Windows" "Linux" "Darwin"
 prew_path = os.getcwd()
 os.chdir(pwd)
 # READS_PATH = pwd / "reads"
@@ -54,10 +56,9 @@ def main():
 
         # Run blat
         blat_outfmt = "psl"
-        os_blat = "blat"
         file_blat_in = read2fas_file
         blat_out = f'{file_blat_in}_blat_crispr.psl'
-        blat_cmd = f'{os_blat} {TEMP_TARGET_FILE}.fa {file_blat_in} ' \
+        blat_cmd = f'{DEF_BLAT_PATH} {TEMP_TARGET_FILE}.fa {file_blat_in} ' \
                    f' -tileSize={USER_BLCONF.tileSize}' \
                    f' -oneOff={USER_BLCONF.oneOff}' \
                    f' -maxGap={USER_BLCONF.maxGap}' \
@@ -378,12 +379,14 @@ def check_conf():
 
 
 def check_blat():
-    # checking environment blat
-
-    if user_os == "win":
-        DEF_BLAT_PATH = pwd / "blat.exe"
-    elif "linux" in user_os or "darwin" in user_os:
-        DEF_BLAT_PATH = pwd / "blat"
+    """ Checks the user's system to determine which BLAT binary to use.
+    """
+    if "win" in user_os.lower():
+        DEF_BLAT_PATH = pwd / "blat_binaries" / "blat.exe"
+    elif "linux" in user_os.lower():
+        DEF_BLAT_PATH = pwd / "blat_binaries" / "blat_linux"
+    elif "darwin" in user_os:
+        DEF_BLAT_PATH = pwd / "blat_binaries" / "blat_macos"
     else:
         print("OS couldn't be determined!")
         exit()
