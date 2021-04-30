@@ -58,10 +58,9 @@ def main():
         read_file.toFastaFile(read2fas_file)
         # Run blat
         blat_outfmt="psl"
-        os_blat = "blat"
         file_blat_in = read2fas_file
         blat_out = f'{file_blat_in}_blat_crispr.psl'
-        blat_cmd = f'{os_blat} {TEMP_TARGET_FILE} {file_blat_in} ' \
+        blat_cmd = f'{DEF_BLAT_PATH} {TEMP_TARGET_FILE} {file_blat_in} ' \
                    f' -tileSize={USER_BLCONF.tileSize}' \
                    f' -oneOff={USER_BLCONF.oneOff}' \
                    f' -maxGap={USER_BLCONF.maxGap}' \
@@ -378,6 +377,7 @@ def check_blat():
         print("BLAT is located at " + str(DEF_BLAT_PATH))
     print("AGEseq will run on a "+user_os+" machine!")
     return DEF_BLAT_PATH
+
 
 def load_target():
     #Load target

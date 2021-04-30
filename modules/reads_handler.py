@@ -1,9 +1,13 @@
+"""
+Utility class for AgeseqIO to handle different types of user files.
+
+File errors  propagate as ValueErrors up to calling functions.
+"""
+
 from pathlib import Path, PurePath
 from Bio import SeqIO
 import gzip
 import os
-
-# TODO: raise errors to be handled in main - value errors then need to be handled
 
 
 class ReadsContextManager:
