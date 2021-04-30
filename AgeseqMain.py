@@ -17,9 +17,9 @@ import pathlib
 from pathlib import Path
 import platform
 
-pwd = pathlib.Path.cwd()
+pwd = Path.cwd()
 # pwd = os.path.dirname(__file__)
-user_os = platform.system() # "Windows" "Linux" "Darwin"
+user_os = platform.system()  # "Windows" "Linux" "Darwin"
 prew_path = os.getcwd()
 os.chdir(pwd)
 # READS_PATH = pwd / "reads"
