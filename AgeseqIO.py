@@ -19,6 +19,7 @@ READS_PATH = pwd / "reads"
 TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 ALIGNED_TARGET_FILE = "TEMP_TARGET_aligned.fa"
 prew_path = os.getcwd()
+READS_HANDLER = ReadsHandler()
 
 # Ensures only one ReadHandler object is created to handle all files
 READS_HANDLER = ReadsHandler()

@@ -14,9 +14,9 @@ from collections import defaultdict
 from Bio import Seq
 import pathlib
 from pathlib import Path
+import platform
 pwd = pathlib.Path.cwd()
 # pwd = os.path.dirname(__file__)
-user_os = sys.platform
 prew_path = os.getcwd()
 os.chdir(pwd)
 READS_PATH = pwd / "reads"
@@ -361,7 +361,8 @@ def check_conf():
 
 def check_blat():
     """ Blat is compiled separately for mac/linux/windows. """
-    if user_os == "win":
+    user_os = platform.system()
+    if "windows" in user_os.lower():
         DEF_BLAT_PATH = pwd / "blat" / "blat_win"
     elif "linux" in user_os.lower():
         DEF_BLAT_PATH = pwd / "blat" / "blat_linux"
