@@ -42,9 +42,9 @@ def main():
     USER_BLCONF.returnBLATConfig()
     DEF_BLAT_PATH = check_blat()
     USER_TARGET = load_target()
-    target_feature = USER_TARGET.target_polymorphism()
-    logfile.write("Polymorphic sites in targets:"+"\n")
-    logfile.write(str(target_feature)+"\n")
+    # target_feature = USER_TARGET.target_polymorphism()
+    # logfile.write("Polymorphic sites in targets:"+"\n")
+    # logfile.write(str(target_feature)+"\n")
     USER_READSFILE_LIST = get_reads_file()
     # for loop for what #issue
     for urfile in USER_READSFILE_LIST:
