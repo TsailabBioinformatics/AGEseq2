@@ -6,3 +6,6 @@ __pycache__
 .vscode/
 .idea/
 test
+
+# Intermediate File
+targets.txt.fa
