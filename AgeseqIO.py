@@ -5,16 +5,19 @@ from Bio import SearchIO
 import os, sys
 import subprocess
 import gzip
+import pathlib
+from pathlib import Path
+pwd = pathlib.Path.cwd()
 
 
 # ReadsHelper needs to be initialized here so we do not construct an object per file
 from handlers.reads_handler import ReadsHandler
 READS_HANDLER = ReadsHandler()
 
-pwd = os.path.dirname(__file__)
+
 user_os = sys.platform
 
-READS_PATH = pwd+"\\reads"
+READS_PATH = pwd / "reads"
 
 prew_path=os.getcwd()
 
