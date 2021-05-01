@@ -48,7 +48,7 @@ def main():
     # logfile.write("Polymorphic sites in targets:"+"\n")
     # logfile.write(str(target_feature)+"\n")
     USER_READSFILE_LIST = get_reads_file()
-    # for loop for what #issue
+    # for each reads file, get their read assigned to targets
     for urfile in USER_READSFILE_LIST:
         read_file = AgeseqIO.readsToSample(urfile)
         read2fas_file = str(urfile)+".fa"
@@ -81,9 +81,10 @@ def main():
         file_assign_sum = assign_mask(assigned_core, mismatch_collection,
                                       indel_collection, target_assigned_count, WOBBLE_BASE)
         # issue add comment
-        for t in file_assign_sum:
-            for ep in file_assign_sum[t]:
-                logfile.write(t+"\t"+ep+"\t"+str(file_assign_sum[t][ep])+"\n")
+        for target in file_assign_sum:
+            # target: 'AMD1a'
+            for ep in file_assign_sum[target]:
+                logfile.write(target+"\t"+ep+"\t"+str(file_assign_sum[target][ep])+"\n")
         # issue add comment
         for eachtarget in sorted(target_assigned_count):
             target_assigned_prop = round(
@@ -161,10 +162,17 @@ def assign_mask(assigned_core, mismatch_collection,
         as_core.updateMask(var_mask)
         as_core.assignEditPat()
         coreEP = as_core.getEditPat()
+        print('coreEP')
+        print(coreEP)
+        # ['221:C->A', '227:T->A', '229:A->C', '233:C->G', '241:C->T', '244:A->T', '250:C->T', '254:C->A', '263:C->T', '267:G->T', '280:C->A', '285:G->A', '288:C->T', '298:C->G']
+        # ['181D7:CAAAGAG', '193I1:A', '209:T->C', '211:C->T', '220:C->T', '240:G->A', '243:G->A', '245:C->A', '259:G->T', '268:G->T', '273:G->T', '278:C->A', '285:G->A', '286:A->T']
         # EP Editing pattern
+        # nested double dictionary
         if type(coreEP) is list:
             # issue
             coreEP = coreEP[0]
+        # BH best hit: reads hitting target
+        # EP editing pattern: 
         if coreBH in file_summary:
             if coreEP in file_summary[coreBH]:
                 file_summary[coreBH][coreEP] += 1
