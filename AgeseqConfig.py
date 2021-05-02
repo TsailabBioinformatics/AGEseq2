@@ -77,14 +77,14 @@ def readConfigFile(configFile):
     """
     cfile = open(configFile, "r")
     paradict = dict()
-    print("Reading Configuration as following!")
+    # print("Reading Configuration as following!")
     for cfileline in cfile:
         if cfileline.startswith("#") or not cfileline.strip():
             pass
         else:
             spline = cfileline.split()
             paradict[spline[0]] = spline[2]
-            print(spline[0]+"\t"+spline[2])
+            # print(spline[0]+"\t"+spline[2])
 
     USER_ASCONF = ASConfig(mismatch_cutoff=paradict['mismatch_cutoff'],
                            min_cutoff=paradict['min_cutoff'],
@@ -100,6 +100,6 @@ def readConfigFile(configFile):
 
 
 if __name__ == '__main__':
-    print("Default presets for AGEseq are:")
+    # print("Default presets for AGEseq are:")
     ASPRESET.returnConfig()
     BLATPRESET.returnBLATConfig()

@@ -1,5 +1,6 @@
 __pycache__
 *.log
+*.csv
 
 # Filesystem/OS Specific
 .DS_Store/
