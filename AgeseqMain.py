@@ -38,11 +38,9 @@ intermediate_file_list = []
 
 def main():
     """ checking path/dir/ """
-    pconf = check_conf()
+    [USER_ASCONF, USER_BLCONF] = check_conf()
 
     """ load configuration """
-    USER_ASCONF = pconf[0]
-    USER_BLCONF = pconf[1]
     USER_BLCONF.returnBLATConfig()
     DEF_BLAT_PATH = check_blat()
     USER_TARGET = load_target()
@@ -61,34 +59,31 @@ def main():
         read_file.toFastaFile(read2fas_file)
 
         """ blat cmd generation and execution """
-        blat_outfmt = "psl"
-        file_blat_in = read2fas_file
-        blat_out = f'{file_blat_in}_blat_crispr.psl'
+        blat_out = f'{read2fas_file}_blat_crispr.psl'
         intermediate_file_list.append(blat_out)
-        blat_cmd = f'{DEF_BLAT_PATH} {target_file}.fa {file_blat_in} ' \
+        blat_cmd = f'{DEF_BLAT_PATH} {target_file}.fa {read2fas_file} ' \
                    f' -tileSize={USER_BLCONF.tileSize}' \
                    f' -oneOff={USER_BLCONF.oneOff}' \
                    f' -maxGap={USER_BLCONF.maxGap}' \
                    f' -minIdentity={USER_BLCONF.minIdentity}' \
-                   f' -out={blat_outfmt}' \
+                   f' -out="psl"' \
                    f' -minScore={USER_BLCONF.minScore} {blat_out}'
         logfile.write("Running blat as:\n"+str(blat_cmd)+"\n")
         subprocess.call(blat_cmd, shell=True)
 
         """ parsing blat result """
-        naive_assign_rst = psl_parse(read_file, USER_TARGET, blat_out)
-        assigned_core = naive_assign_rst[0]
-        mismatch_collection = naive_assign_rst[1]
-        indel_collection = naive_assign_rst[2]
-        target_assigned_count = naive_assign_rst[3]
-        target_var_freq = cal_target_var_freq(mismatch_collection,
-                                              indel_collection,
-                                              target_assigned_count)
+        [assigned_core, mismatch_collection, indel_collection, target_assigned_count] = psl_parse(read_file, USER_TARGET, blat_out)
+        # target_var_freq = cal_target_var_freq(mismatch_collection,
+        #                                       indel_collection,
+        #                                       target_assigned_count)
         logfile.write("Assignment begins!"+"\n")
 
         # issue add comment
-        file_assign_sum = assign_mask(assigned_core, mismatch_collection,
+        file_assign_sum, coreEP_list = assign_mask(assigned_core, mismatch_collection,
                                       indel_collection, target_assigned_count, WOBBLE_BASE)
+        
+        print('file_sum')
+        print(file_assign_sum)
         # issue add comment
         for target in file_assign_sum:
             # target: 'AMD1a'
