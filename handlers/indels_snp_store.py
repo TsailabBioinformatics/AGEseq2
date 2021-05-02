@@ -46,6 +46,34 @@ class IndelSNPStore:
         self.test_file_location = Path('./indels_snp_store_files/example_coreEP.txt')
 
         self.parse()
+    
+    def parseCoreEP(coreEP):
+        """  """
+        data = {}
+        items = coreEP
+
+        current_indels = set()
+        current_snps = []
+        for item in items:
+            item = item.strip()
+
+            if 'I' in item or 'D' in item:
+                current_indels.add(item)
+                # update dictionary to avoid second list
+                if item not in data.keys():
+                    data[item] = dict()
+
+            else:
+                current_snps.append(item)
+
+        if current_indels:
+            for snp in current_snps:
+                for indel in current_indels:
+                    if snp not in data[indel].keys():
+                        data[indel][snp] = 1
+                    else:
+                        data[indel][snp] += 1
+        return data
 
     def parse(self):
         with open(self.test_file_location, 'r') as f:
