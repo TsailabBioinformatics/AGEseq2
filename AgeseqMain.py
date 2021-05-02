@@ -18,15 +18,12 @@ from pathlib import Path
 import platform
 
 pwd = Path.cwd()
-# pwd = os.path.dirname(__file__)
 user_os = platform.system()  # "Windows" "Linux" "Darwin"
 prew_path = os.getcwd()
 os.chdir(pwd)
-# READS_PATH = pwd / "reads"
-# TEMP_TARGET_FILE = "TEMP_TARGET.fa"
 READS_FILE_LIST = list()
 DEF_BLAT_PATH = pwd / "blat"
-# record for script running
+""" record for script running """
 sysdatetime = datetime.now()
 dt_string = sysdatetime.strftime("%Y%m%d_%H_%M_%S")
 logfile_name = "AGESeq_run_"+dt_string+".log"
@@ -36,29 +33,39 @@ mod = "legacy"
 logfile.write(WELCOM_MESSAGE)
 
 
+""" intermediate files list """
+intermediate_file_list = []
+
 def main():
-    # checking path/dir/
+    """ checking path/dir/ """
     pconf = check_conf()
+
+    """ load configuration """
     USER_ASCONF = pconf[0]
     USER_BLCONF = pconf[1]
     USER_BLCONF.returnBLATConfig()
     DEF_BLAT_PATH = check_blat()
     USER_TARGET = load_target()
+
+    """ using MUSCLE to check input polymorphism """
     # target_feature = USER_TARGET.target_polymorphism()
     # logfile.write("Polymorphic sites in targets:"+"\n")
     # logfile.write(str(target_feature)+"\n")
+
     USER_READSFILE_LIST = get_reads_file()
-    # for each reads file, get their read assigned to targets
+    """ for each reads file, get their read assigned to targets """
     for urfile in USER_READSFILE_LIST:
         read_file = AgeseqIO.readsToSample(urfile)
         read2fas_file = str(urfile)+".fa"
+        intermediate_file_list.append(read2fas_file)
         read_file.toFastaFile(read2fas_file)
 
-        # Run blat
+        """ blat cmd generation and execution """
         blat_outfmt = "psl"
         file_blat_in = read2fas_file
         blat_out = f'{file_blat_in}_blat_crispr.psl'
-        blat_cmd = f'{DEF_BLAT_PATH} {TEMP_TARGET_FILE}.fa {file_blat_in} ' \
+        intermediate_file_list.append(blat_out)
+        blat_cmd = f'{DEF_BLAT_PATH} {target_file}.fa {file_blat_in} ' \
                    f' -tileSize={USER_BLCONF.tileSize}' \
                    f' -oneOff={USER_BLCONF.oneOff}' \
                    f' -maxGap={USER_BLCONF.maxGap}' \
@@ -67,6 +74,8 @@ def main():
                    f' -minScore={USER_BLCONF.minScore} {blat_out}'
         logfile.write("Running blat as:\n"+str(blat_cmd)+"\n")
         subprocess.call(blat_cmd, shell=True)
+
+        """ parsing blat result """
         naive_assign_rst = psl_parse(read_file, USER_TARGET, blat_out)
         assigned_core = naive_assign_rst[0]
         mismatch_collection = naive_assign_rst[1]
@@ -84,14 +93,16 @@ def main():
         for target in file_assign_sum:
             # target: 'AMD1a'
             for ep in file_assign_sum[target]:
-                logfile.write(target+"\t"+ep+"\t"+str(file_assign_sum[target][ep])+"\n")
+                logfile.write(target+"\t"+ep+"\t" +
+                              str(file_assign_sum[target][ep])+"\n")
         # issue add comment
         for eachtarget in sorted(target_assigned_count):
             target_assigned_prop = round(
                 target_assigned_count[eachtarget]/len(assigned_core)*100, 1)
             logfile.write("\n"+eachtarget+"\t"+str(target_assigned_count[eachtarget])+"\t" +
                           str(target_assigned_prop)+"% of assigned reads"+"\n")
-
+    for intermediate_file in intermediate_file_list:
+        os.remove(intermediate_file)
 
 def cal_target_var_freq(mismatch_collection, indel_collection,
                         target_assigned_count):
@@ -108,34 +119,34 @@ def cal_target_var_freq(mismatch_collection, indel_collection,
 
 def assign_mask(assigned_core, mismatch_collection,
                 indel_collection, target_assigned_count, WOBBLE_BASE):
+    """ filter out those unqualified mismatch and retain only editing pattern """
     file_summary = defaultdict(dict)
-    for qid in assigned_core:
-        as_core = assigned_core[qid]
-        coreID = as_core.getreadID()
-        coreBH = as_core.getBH()
-        coreBHscore = as_core.getBHScore()
-        coremismatch = as_core.getPSLMismatch()
-        coremismatch_count = as_core.getMismatchCount()
-        coremismatchstr = as_core.printmismatch()
+    for reads,as_core in assigned_core.items():
+        coreBH = as_core.getBH() # target
+        coreBHscore = as_core.getBHScore() # int
+        coremismatch = as_core.getPSLMismatch() # ['146:A->G']
+        coremismatch_count = as_core.getMismatchCount() # int
+        coremismatchstr = as_core.printmismatch() # "1 Mismatch(es)\t['146:A->G']\n"
         coreINDEL = as_core.getINDEL()
-        logfile.write(str(coreID)+"\t"+coreBH+"\t"+str(coreBHscore)+"\n")
+        logfile.write(str(reads)+"\t"+coreBH+"\t"+str(coreBHscore)+"\n")
         logfile.write(coremismatchstr)
         var_mask = dict()
+        """ go through each mismatch """
         if coremismatch_count > 0:
-            for mismatch in coremismatch:
-                str_mismatch = mismatch
+            for str_mismatch in coremismatch:
                 totalmismatch = mismatch_collection[coreBH][str_mismatch]
                 misfreq = round(totalmismatch/target_assigned_count[coreBH], 3)
+                """ too few mapped reads and wobble base case """
                 if misfreq < READ_SNP_MINR_FREQ or totalmismatch < READ_SNP_MINIMAL_SUPPORT:
-                    var_mask[mismatch] = "masked"
+                    var_mask[str_mismatch] = "masked"
                     logfile.write(str_mismatch+"\t"+str(misfreq)+"\t" +
                                   " removed!\n")
                 else:
                     if WOBBLE_BASE:
                         target_range = as_core.getHSPrange()
-                        mispos = int(mismatch.split(":")[0])
+                        mispos = int(str_mismatch.split(":")[0])
                         if (mispos - target_range[0] < 12 or abs(mispos - target_range[1]) < 12) and (misfreq < WOBBLE_FREQ_RANGE[1] and misfreq > WOBBLE_FREQ_RANGE[0]):
-                            var_mask[mismatch] = "masked"
+                            var_mask[str_mismatch] = "masked"
                             logfile.write(
                                 str_mismatch+"\t"+str(misfreq)+" masked as a wobblebase!\n")
                         else:
@@ -144,10 +155,9 @@ def assign_mask(assigned_core, mismatch_collection,
                     else:
                         logfile.write(str_mismatch+"\t" +
                                       str(misfreq)+" kept!\n")
+        """ go through each INDEL """
         if len(coreINDEL) > 0:
-
             logfile.write(str(len(coreINDEL))+" INDEL(s) is/are found!\n")
-            print(coreINDEL)
             for indel in coreINDEL:
                 totalindel = indel_collection[coreBH][indel]
                 indelfreq = round(totalindel/target_assigned_count[coreBH], 3)
@@ -364,7 +374,7 @@ def psl_parse(read_file, target_file, blat_out):
 
 
 def check_conf():
-    # checking the configuration file
+    """ checking the configuration file """
     fp_AGEseqConf = pwd / "AGEseq.conf"
     print(fp_AGEseqConf)
     if os.path.exists(fp_AGEseqConf):
@@ -414,7 +424,7 @@ def load_target():
         print("Target File is found:" + str(v1_targetfile))
         UTarget = AgeseqIO.readv1TargetFile(v1_targetfile)
         # UTarget.showAsFasta()
-        UTarget.toFastaFile(TEMP_TARGET_FILE+'.fa')
+        UTarget.toFastaFile(target_file+'.fa')
         return UTarget
     else:
         print("Couldn't locate target file:"+str(v1_targetfile))
@@ -445,8 +455,8 @@ if __name__ == '__main__':
     # --READ_INDEL_MINIMAL_SUPPORT 5 \
     # --WOBBLE_BASE "true" \
     # --WOBBLE_FREQ_RANGE 0.35 0.65
-    parser = argparse.ArgumentParser(description='AGEseq2 introduction words #issue')
-    #issue positional for now, should change it
+    parser = argparse.ArgumentParser(
+        description='AGEseq2 introduction words #issue')
     parser.add_argument('-t', type=str,
                         help='fasta format target file')
     parser.add_argument('-r', type=str,
@@ -460,21 +470,21 @@ if __name__ == '__main__':
     parser.add_argument('--READ_INDEL_MINIMAL_SUPPORT', type=float,
                         help='')
     parser.add_argument("-w", "--WOBBLE_BASE", help="remove wobble base",
-                    action="store_true")
+                        action="store_true")
     parser.add_argument('--WOBBLE_FREQ_RANGE', nargs=2, type=float,
                         help='')
-    args=parser.parse_args()
+    args = parser.parse_args()
 
-    TEMP_TARGET_FILE = args.t
+    target_file = args.t
     READS_PATH = args.r
 
-    #issue assign value if specified in command
+    # issue assign value if specified in command
     READ_SNP_MINR_FREQ = 0.05  # Target specific, not overall frequency
     READ_INDEL_MINR_FREQ = 0.01  # Target specific, not overall frequency
     READ_SNP_MINIMAL_SUPPORT = 3
     READ_INDEL_MINIMAL_SUPPORT = 5
     WOBBLE_BASE = True
     WOBBLE_FREQ_RANGE = (0.35, 0.65)
-    
+
     print(READS_PATH)
     main()
