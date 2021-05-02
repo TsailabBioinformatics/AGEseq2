@@ -172,7 +172,7 @@ class ASCore(object):
         old_indel = self.indel
         new_indel = old_indel.copy()
         if self.mismatch_count == 0 and self.indel_count == 0:
-            self.editPattern = "WT"
+            self.editPattern = ["WT"]
         elif self.indel_count == 0:
             new_mismatch = old_mismatch.copy()
             for emis in old_mismatch:
@@ -180,7 +180,7 @@ class ASCore(object):
                     new_mismatch.remove(emis)
                     #logfile.write(str(old_mismatch[emis])+"\n")
             if len(new_mismatch) == 0:
-                self.editPattern = "WT"
+                self.editPattern = ["WT"]
             else:
                 self.editPattern = new_mismatch
         else:
@@ -195,7 +195,7 @@ class ASCore(object):
                 if emis in self.var_mask:
                     new_mismatch.remove(emis)
             if len(new_mismatch) == 0 and len(new_indel) == 0:
-                self.editPattern = "WT"
+                self.editPattern = ["WT"]
             elif len(new_mismatch) == 0:
                 self.editPattern = new_indel
             else:
