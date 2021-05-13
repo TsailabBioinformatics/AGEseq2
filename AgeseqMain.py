@@ -58,7 +58,7 @@ def main():
 
     USER_READSFILE_LIST = get_reads_file()
 
-    # init lists for DataFrame
+    # initiation of lists for output DataFrame
     input_file_name_list = []
     target_list = []
     aligned_target_list = []
