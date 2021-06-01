@@ -10,3 +10,4 @@ test
 
 # Intermediate File
 targets.txt.fa
+blat_binaries/.DS_Store
