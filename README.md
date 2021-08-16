@@ -83,7 +83,7 @@ In the summary table file, it includes following columns:
 
     input_file	targetID	aligned_target	aligned_consensus	sub_hits	editing_pattern_hits	editing_pattern
 
-This summary file provides basic statistic information on targets and identified editing pattern from reads. Each identified editing pattern also has a consensus sequence built to show the identified location of gene edit.
+This summary file provides basic statistic information on targets and identified editing patterns from provide reads per file. Each identified editing pattern also has a consensus sequence built to show the identified location of gene edit.
 
 
 
