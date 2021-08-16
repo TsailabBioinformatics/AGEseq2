@@ -54,7 +54,7 @@ Additionally, `-sa` is set to 1 by default to not show alignments in the log fil
 
 ### Inputs
 #### Target format
-A plain file with two columns, the first column is the name of target sequence, and the second column is the sequence.
+A plain file with two columns, the first column is the name of target sequence, and the second column is the sequence. Now a fasta-style sequence file is also accepted as a valid target.
 #### Configuration file
 Paramters set by `AGEseq.conf`:
 
