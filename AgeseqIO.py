@@ -8,6 +8,7 @@ import sys
 import subprocess
 import gzip
 import pathlib
+import re
 from pathlib import Path
 pwd = pathlib.Path.cwd()
 
@@ -35,6 +36,17 @@ class ASTarget(object):
         self.fastaname = ""
         for keys in self.seq_dict:
             self.seqid_list.append(keys)
+        self.pos_mask_list = dict()
+        self.aligned_target = dict()
+
+    def getAlignedTarget(self, bh, ep):
+        return self.aligned_target[bh][ep]
+
+    def maskTargetSNP(self, seq_id, pos_list):
+        #seq=list(self.getTargetSeq(seq_id))
+        #for i in pos_list:
+        #    seq[i-1]="O"
+        self.pos_mask_list[seq_id] = pos_list
 
     def showAsFasta(self):
         """Print out all target sequences in a fasta style.
@@ -122,7 +134,7 @@ class ASSample(object):
 
     def toFastaFile(self, out_file_name):
         with open(out_file_name, 'w') as ofile:
-            
+
             count = 0
             for id in self.bioiter:
                 rec = self.bioiter[id]
@@ -134,7 +146,7 @@ class ASSample(object):
         return self.SampleList
 
     def getReadSeq(self, qid):
-        return self.bioiter[qid].seq
+        return str(self.bioiter[qid].seq)
 
 
 class ASCore(object):
@@ -157,7 +169,7 @@ class ASCore(object):
         self.besthit_id = ""
         self.besthit_score = int()
         self.hsp = ""
-        self.hspstr = ""
+        self.hspstr = []
         self.editPattern = ""
         self.qseq = ""
         self.bhseq = ""
@@ -166,6 +178,104 @@ class ASCore(object):
         self.indel = list()
         self.indel_count = 0
         self.var_mask = ""
+        self.hit_aligned_block = []
+        self.query_aligned_block = []
+        self.feature_aligned_block = []
+        self.alnStr = False
+        self.consensus = []
+
+    def aln2str(self):
+        outstr = []
+        if self.indel_count == 0:
+            #print(str(self.query_aligned_block))
+            outstr.append(str("".join(self.hit_aligned_block)))
+            outstr.append(str("".join(self.query_aligned_block)))
+        else:
+            if self.alnStr == True:
+                outstr.append(str("".join(self.hit_aligned_block)))
+                outstr.append(str("".join(self.query_aligned_block)))
+                return outstr
+            else:
+                aln_hit = self.hit_aligned_block
+                aln_query = self.query_aligned_block
+                hit_indel_dict = dict()
+                query_indel_dict = dict()
+                indel_pos_list = []
+                for i in range(0, len(self.indel)):
+                    x = self.indel[i].split(':')
+                    if x[0].find("I") == -1:
+                        indelstr = x[0].split('D')
+                        hit_indel_dict[indelstr[0]] = x[1]
+                        query_indel_dict[indelstr[0]] = "-"*int(indelstr[1])
+                        indel_pos_list.append(indelstr[0])
+                    else:
+                        indelstr = x[0].split('I')
+                        hit_indel_dict[indelstr[0]] = "-"*int(indelstr[1])
+                        query_indel_dict[indelstr[0]] = x[1]
+                        indel_pos_list.append(indelstr[0])
+                indel_pos_list = sorted(indel_pos_list)
+                for i in range(0, len(indel_pos_list)):
+                    aln_hit[i] = aln_hit[i]+hit_indel_dict[indel_pos_list[i]]
+                    aln_query[i] = aln_query[i] + \
+                        query_indel_dict[indel_pos_list[i]]
+                    #logfile.write(str(aln_hit[i])+"\n")
+                outstr.append(str("".join(aln_hit)))
+                outstr.append(str("".join(aln_query)))
+        self.alnStr = True
+        return outstr
+
+    def aln2feature(self, USER_TARGET):
+        feastr = []
+        if self.alnStr == True:
+            hit_aln = str("".join(self.hit_aligned_block))
+            query_aln = str("".join(self.query_aligned_block))
+            blast_link = []
+            con_link = []
+            number_del = 0
+            number_ins = 0
+            for i in range(0, len(hit_aln)):
+                if hit_aln[i] == query_aln[i]:
+                    blast_link.append(".")
+                    con_link.append(".")
+                    self.consensus.append(query_aln[i].lower())
+                elif hit_aln[i] == "-":
+                    number_ins += 1
+                    blast_link.append(query_aln[i])
+                    con_link.append(query_aln[i])
+                    self.consensus.append(query_aln[i])
+                elif query_aln[i] == "-":
+                    number_del += 1
+                    blast_link.append("-")
+                    con_link.append("-")
+                    self.consensus.append("-")
+                else:
+                    blast_link.append("*")
+                    #print(str(self.hspstr))
+                    flag_mask = 0
+                    abs_pos = int(self.hspstr[3][0])
+                    cal_pos = i + abs_pos + 1 - number_ins
+                    for mpos in USER_TARGET.pos_mask_list[self.besthit_id]:
+                        #print(cal_pos, mpos)
+                        if cal_pos == int(mpos):
+                            flag_mask = 1
+                    #print(flag_mask)
+                    if flag_mask == 0:
+                        con_link.append("*")
+                        self.consensus.append(query_aln[i].upper())
+                    else:
+                        con_link.append(".")
+                        self.consensus.append(hit_aln[i].lower())
+            feastr.append(str("".join(blast_link)))
+            feastr.append(str("".join(con_link)))
+            feastr.append(str("".join(self.consensus)))
+            return feastr
+        else:
+            s = self.aln2str()
+            self.aln2feature()
+
+    def printConsensus(self):
+        consensusseq = str("".join(self.consensus))
+        return consensusseq
 
     def assignEditPat(self):
         """Does not return, but updates the editPattern of the instance based on
@@ -207,6 +317,9 @@ class ASCore(object):
     def getEditPat(self):
         """Returns the editPattern"""
         return self.editPattern
+
+    def updatebesthitalign(self, alignblock):
+        self.besthitalign = alignblock
 
     def updateHSP(self, hsp):
         """Adding/Update HSP from BLAT to the instance. To use hsp, you can
@@ -403,6 +516,8 @@ def readv1TargetFile(v1_target):
             pass
         else:
             tfline = cfileline.split()
+            if tfline[1] == "sequence":
+                continue
             if tfline[0] in tseq_dict.keys():
                 print("Duplicated seqID are found in the target, please modify it!")
                 exit

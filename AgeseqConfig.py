@@ -7,12 +7,22 @@ class ASConfig(object):
     """
 
     def __init__(self, mismatch_cutoff, min_cutoff,
-                 wt_like_report, indel_report, remove_files):
+                 wt_like_report, indel_report, remove_files,
+                 READ_SNP_MINR_FREQ, READ_INDEL_MINR_FREQ,
+                 READ_SNP_MINIMAL_SUPPORT, READ_INDEL_MINIMAL_SUPPORT,
+                 WOBBLE_BASE, WOBBLE_FREQ_HIGH, WOBBLE_FREQ_LOW):
         self.mismatch_cutoff = mismatch_cutoff
         self.min_cutoff = min_cutoff
         self.wt_like_report = wt_like_report
         self.indel_report = indel_report
         self.remove_files = remove_files
+        self.READ_SNP_MINR_FREQ = float(READ_SNP_MINR_FREQ)
+        self.READ_INDEL_MINR_FREQ = float(READ_INDEL_MINR_FREQ)
+        self.READ_SNP_MINIMAL_SUPPORT = int(READ_SNP_MINIMAL_SUPPORT)
+        self.READ_INDEL_MINIMAL_SUPPORT = int(READ_INDEL_MINIMAL_SUPPORT)
+        self.WOBBLE_BASE = WOBBLE_BASE
+        self.WOBBLE_FREQ_HIGH = float(WOBBLE_FREQ_HIGH)
+        self.WOBBLE_FREQ_LOW = float(WOBBLE_FREQ_LOW)
 
     def returnConfig(self):
         print("Mismatch cutoff:", self.mismatch_cutoff)
@@ -50,7 +60,14 @@ ASPRESET = ASConfig(mismatch_cutoff=0.1,
                     min_cutoff=0,
                     wt_like_report=20,
                     indel_report=50,
-                    remove_files=True)
+                    remove_files=True,
+                    READ_SNP_MINR_FREQ=0.05,
+                    READ_INDEL_MINR_FREQ=0.01,
+                    READ_SNP_MINIMAL_SUPPORT=3,
+                    READ_INDEL_MINIMAL_SUPPORT=5,
+                    WOBBLE_BASE=True,
+                    WOBBLE_FREQ_HIGH=0.65,
+                    WOBBLE_FREQ_LOW=0.35)
 
 BLATPRESET = BLATConfig(tileSize=7,
                         oneOff=1,
@@ -90,7 +107,15 @@ def readConfigFile(configFile):
                            min_cutoff=paradict['min_cutoff'],
                            wt_like_report=paradict['wt_like_report'],
                            indel_report=paradict['indel_report'],
-                           remove_files=paradict['remove_files'])
+                           remove_files=paradict['remove_files'],
+                           READ_SNP_MINR_FREQ=paradict['READ_SNP_MINR_FREQ'],
+                           READ_INDEL_MINR_FREQ=paradict['READ_INDEL_MINR_FREQ'],
+                           READ_SNP_MINIMAL_SUPPORT=paradict['READ_SNP_MINIMAL_SUPPORT'],
+                           READ_INDEL_MINIMAL_SUPPORT=paradict['READ_INDEL_MINIMAL_SUPPORT'],
+                           WOBBLE_BASE=paradict['WOBBLE_BASE'],
+                           WOBBLE_FREQ_HIGH=float(paradict['WOBBLE_FREQ_HIGH']),
+                           WOBBLE_FREQ_LOW=float(paradict['WOBBLE_FREQ_LOW']))
+
     USER_BLCONF = BLATConfig(tileSize=paradict['blat_tileSize'],
                              oneOff=paradict['blat_oneOff'],
                              maxGap=paradict['blat_maxGap'],
