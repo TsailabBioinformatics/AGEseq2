@@ -67,7 +67,7 @@ class ReadsHandler:
         """
         if 'fastq' in file_id:
             file_type = 'fastq'
-        elif 'fasta' in file_id:
+        elif 'fasta' in file_id or '.fa' in file_id:
             file_type = 'fasta'
         else:
             raise ValueError("Please ensure file extension ends with .fasta .fastq, .fasta.gz, or .fastq.gz")
