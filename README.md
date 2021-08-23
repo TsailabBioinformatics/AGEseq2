@@ -53,7 +53,7 @@ This means that if you have put target sequences in the targets.txt, and reads f
 Additionally, `-sa` is set to 1 by default to not show alignments in the log file. If you're interested in looking each alignment of each read, you can change this to `-sa 0`.
 
 #### Sapelo2 Specific
-You will need to load pandas and Biopython with following commands before you can run Ageseq2. If python3 is not automatically loaded, you can manually imported in a similar fashion:
+You will need to load pandas and Biopython with following commands before you can run Ageseq2. If Python3 is not automatically loaded, you can manually imported in a similar fashion:
 
     ml pandas/0.25.3-intel-2019b-Python-3.7.4
     ml Biopython/1.75-intel-2019b-Python-3.7.4
