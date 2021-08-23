@@ -15,22 +15,25 @@
 
 ### Introduction
 
-Ageseq2-CLI is a command line interface (in Python) for identification of edited patterns from outputs of BLAT by aligning over thousands of reads to targets.
+Ageseq2-CLI is a command line interface (in Python) for identification of target editing events from outputs of BLAT by aligning over thousands of reads to targets.
 
-By default, the program will summarize the number of edited patterns supported by the number of reads per target sequence in the provided file (see `Usage`).
+By default, the program will summarize the number of target editing events supported by the number of reads per target sequence in the provided file (see `Usage`).
 
 
 ### Installation
+
 #### Standard installation
-For advanced users, you need Python 3.8+, Biopython, pandas, and BLAT binary to make Ageseq2 work.
+For advanced users, you need Python 3, Biopython, pandas, and BLAT binary to make Ageseq2 work.
 You can find Python3 here: https://www.python.org/downloads/. Once python is installed in your computer, you can install both Biopython and pandas modules through pipy easily:
 
     python3 -m pip install Biopython
     python3 -m pip install pandas
  
-In the package, BLAT binaries have been included in the blat_binaries folder, but cygwin1.dll will be required if you're running blat in a Windows system. You should be able to find it online with search engine. Once you found it, it has to stay with the other python scripts in the same place or the entry folder.
+In the package, BLAT binaries have been included in the blat_binaries folder, but cygwin1.dll might be required if you're running blat in a Windows system. You should be able to find it online with search engine. Once you found it, it has to stay with the other python scripts in the same place or the entry folder.
 #### Possible issues with MAC
 You might need to manually unlock the blat_macos in your system preference/setting.
+#### Possible issues with LINUX
+You might need to manually allow the blat_linux to be excuted with `chmod +x`.
 
 ### Usage
 
@@ -61,6 +64,7 @@ You will need to load pandas and Biopython with following commands before you ca
 Then rest steps for running Ageseq2 would be same.
 
 ### Inputs
+
 #### Target format
 A plain file with two columns, the first column is the name of target sequence, and the second column is the sequence. Now a fasta-style sequence file is also accepted as a valid target.
 #### Reads format
@@ -87,6 +91,7 @@ Paramters set by `AGEseq.conf`:
 
 
 ### Outputs
+
 In the summary table file, it includes following columns:
 
     input_file	targetID	aligned_target	aligned_consensus	sub_hits	editing_pattern_hits	editing_pattern
