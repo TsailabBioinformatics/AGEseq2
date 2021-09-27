@@ -151,8 +151,11 @@ def main():
                 if ep in g_editPat_collapse[bh]:
                     original_ep_count = merged_file_assign_sum[bh][ep]
                     collapse_ep = g_editPat_collapse[bh][ep]
-                    merged_file_assign_sum[bh][collapse_ep] = merged_file_assign_sum[bh][collapse_ep] + original_ep_count
-                    del merged_file_assign_sum[bh][ep]
+                    if collapse_ep in merged_file_assign_sum[bh]:
+                        merged_file_assign_sum[bh][collapse_ep] = merged_file_assign_sum[bh][collapse_ep] + original_ep_count
+                        del merged_file_assign_sum[bh][ep]
+                    else:
+                        merged_file_assign_sum[bh][collapse_ep] = 0
 
         # percentage of target
         for eachtarget in sorted(target_assigned_count):
@@ -164,6 +167,8 @@ def main():
         """ register each editing pattern to list for file writing """
         for bh in merged_file_assign_sum:
             for ep in merged_file_assign_sum[bh]:
+                if merged_file_assign_sum[bh][ep] == 0:
+                    continue
                 urfilename=urfile.split("/")
                 if "windows" in platform.system().lower():
                     urfilename=urfile.split("\\")
@@ -171,7 +176,8 @@ def main():
                 target_list.append(bh)
                 aligned_target_list.append(sub_USER_TARGET.getAlignedTarget(bh, ep))
                 aligned_read_list.append(aligned_read_consensus[bh][ep])
-                target_hits_num_list.append(target_assigned_count[bh])
+                if bh in target_assigned_count:
+                    target_hits_num_list.append(target_assigned_count[bh])
                 ep_hitnum = 0
                 if ep in g_editPat_collapse[bh]:
                     ep_hitnum = ep_hitnum + merged_file_assign_sum[bh][g_editPat_collapse[bh][ep]]
@@ -402,7 +408,8 @@ def psl_parse(read_file, target_file, blat_out):
                 else:
                     q_besthit_score[qid] = hsp.score
                     q_besthit[qid] = hit.id
-        ASCore_collection[qid].updatePSLTargets(psl_t_dict)
+        else:
+         ASCore_collection[qid].updatePSLTargets(psl_t_dict)
 
     # q_besthit_score[read] = hsp.score
     # q_besthit[read] = target
