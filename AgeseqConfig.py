@@ -25,11 +25,8 @@ class ASConfig(object):
         self.WOBBLE_FREQ_LOW = float(WOBBLE_FREQ_LOW)
 
     def returnConfig(self):
-        print("Mismatch cutoff:", self.mismatch_cutoff)
-        print("Minimal cutoff:", self.min_cutoff)
-        print("Top WT reported:", self.wt_like_report)
-        print("Top Indel reported:", self.indel_report)
-        print("Remove intermediate/BLAT files:", self.remove_files)
+        return self.__dict__
+
 
 
 class BLATConfig(object):
@@ -46,13 +43,7 @@ class BLATConfig(object):
         self.minScore = minScore
 
     def returnBLATConfig(self):
-        """Report BLATConfiguration"""
-        print("BLAT is set as following:")
-        print("tileSize:", self.tileSize)
-        print("oneOff:", self.oneOff)
-        print("maxGap:", self.maxGap)
-        print("minIdentity:", self.minIdentity)
-        print("minScore:", self.minScore)
+        return self.__dict__
 
 
 # Preset:
