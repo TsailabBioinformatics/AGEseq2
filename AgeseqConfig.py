@@ -64,7 +64,7 @@ BLATPRESET = BLATConfig(tileSize=7,
                         oneOff=1,
                         maxGap=20,
                         minIdentity=70,
-                        minScore=20)
+                        minScore=80)
 
 PRESET_PAM = {
     "SpCas9": "NGG",
