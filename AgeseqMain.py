@@ -45,7 +45,7 @@ DEF_BLAT_PATH = pwd / "blat"
 sysdatetime = datetime.now()
 dt_string = sysdatetime.strftime("%Y%m%d_%H_%M_%S")
 logfile_name = "AGESeq_run_"+dt_string+".log"
-logfile = open(logfile_name, "w")
+logfile = open(f"{args.read}/{logfile_name}", "w")
 mod = "legacy"
 logfile.write("Thank you for using AGEseq!\n")
 
@@ -91,6 +91,8 @@ def main():
         read2fas_file = str(urfile)+".fa"
         intermediate_file_list.append(read2fas_file)
         read_file.toFastaFile(read2fas_file)
+
+        # CH: no need to read the target in the for loop
         sub_USER_TARGET = load_target(TARGET_FILE)
         """ blat cmd generation and execution """
         blat_out = f'{read2fas_file}_blat_crispr.psl'
@@ -197,7 +199,7 @@ def main():
         "editing pattern hits": editing_pattern_hits_num_list,
         "editing pattern": editing_pattern_list
     })
-    summary_table.to_csv("AGESeq_summary_"+dt_string+".csv")
+    summary_table.to_csv(f"{args.read}/AGESeq_summary_{dt_string}.csv")
     logfile.write("\nSummary File has been written to AGESeq_summary_"+dt_string+".csv"+"\n")
     logfile.write("\n"+"-"*60+"\n")
     """ clean up intermediate files """
@@ -388,6 +390,7 @@ def psl_parse(read_file, target_file, blat_out):
     logfile.write(
         f"{number_q_in_psl} reads have hits to the target sequences provided ({perc_hit}% of the sample)!\n")
     # find the best hit?
+    # move this whole loop into AgeseqIO.parseBLATlegacymod and remove the to_dict() usage to increase performance
     for qid in psl_dict:
         # qid: reads id
         ASCore_collection[qid] = AgeseqIO.ASCore(qid)
