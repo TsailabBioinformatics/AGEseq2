@@ -9,5 +9,4 @@ RUN python3 -m pip install pandas
 RUN apt-get -y install libcurl4
 RUN git clone https://github.com/TsailabBioinformatics/AGEseq2.git
 RUN cd AGEseq2; git checkout docker
-
 CMD cd AGEseq2; python3 ./AgeseqMain.py -t /data/targets.txt -r /data/reads/

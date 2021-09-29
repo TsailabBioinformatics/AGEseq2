@@ -200,8 +200,8 @@ def main():
         "editing pattern hits": editing_pattern_hits_num_list,
         "editing pattern": editing_pattern_list
     })
-    summary_table.to_csv(f"{args.read}/AGESeq_summary_{dt_string}.csv")
-    logfile.write("\nSummary File has been written to AGESeq_summary_"+dt_string+".csv"+"\n")
+    summary_table.to_csv(f"{output_path}/AGESeq_summary_{dt_string}.csv")
+    print("\nSummary File has been written to AGESeq_summary_"+dt_string+".csv"+"\n")
     logfile.write("\n"+"-"*60+"\n")
     """ clean up intermediate files """
     for intermediate_file in intermediate_file_list:
