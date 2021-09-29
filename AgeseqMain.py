@@ -45,7 +45,7 @@ DEF_BLAT_PATH = pwd / "blat"
 sysdatetime = datetime.now()
 dt_string = sysdatetime.strftime("%Y%m%d_%H_%M_%S")
 logfile_name = "AGESeq_run_"+dt_string+".log"
-logfile = open(f"{args.read}/{logfile_name}", "w")
+logfile = open(f"{pwd}/{logfile_name}", "w")
 mod = "legacy"
 logfile.write("Thank you for using AGEseq!\n")
 
