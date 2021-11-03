@@ -6,7 +6,8 @@
       * [Standard installation](#standard-installation)
 
    * [Usage](#usage)
-      * [Simple Usage](#simple-usage)
+      * [Using the Command Line](#simple-usage)
+      * [Using Docker](#using-docker)
       * [Inputs](#inputs)
       * [Outputs](#outputs)
    * [Citations](#citations)
@@ -37,6 +38,13 @@ You might need to manually allow the blat_linux to be excuted with `chmod +x`.
 
 ### Usage
 
+Ageseq2 can be run on the command line interface or via Docker. The following documentation instructs how to run Ageseq2 in both ways (i.e., command line & Docker).
+
+#### Using the Command Line 
+First clone this repository.
+  
+    git clone https://github.com/TsailabBioinformatics/AGEseq2/ 
+  
 Two inputs are required for Ageseq2:
     
     python AgeseqMain.py -t [target_file] -r [reads_path] -sa [0|1]
@@ -48,20 +56,46 @@ A target file and relative path to where reads files are stored are required for
     
 Finally, you need to make sure the configuration file `AGEseq.conf` is in the same folder along with targets.txt. You should adjust those parameters to achieve a desired result.
 
-#### Simple Usage
+##### Simple Usage
 This means that if you have put target sequences in the targets.txt, and reads files in a folder named "reads" in the same folder, you would be able to run Ageseq simply with  the following command:
 
     python AgeseqMain.py
     
 Additionally, `-sa` is set to 1 by default to not show alignments in the log file. If you're interested in looking each alignment of each read, you can change this to `-sa 0`.
 
-#### Sapelo2 Specific
+##### Sapelo2 Specific
 You will need to load pandas and Biopython with following commands before you can run Ageseq2. If Python3 is not automatically loaded, you can manually imported in a similar fashion:
 
     ml pandas/0.25.3-intel-2019b-Python-3.7.4
     ml Biopython/1.75-intel-2019b-Python-3.7.4
     
 Then rest steps for running Ageseq2 would be same.
+
+#### Using Docker
+
+Install Docker <https://www.docker.com/products/docker-desktop>
+
+Get the AGEseq image. Go to the docker image on a web browser:
+<https://hub.docker.com/r/bendjamin101001/ageseq2>
+
+Copy the 'Docker Pull Command', execute in the 'Terminal':
+`docker pull bendjamin101001/ageseq2`
+
+You should be able to see the 'bendjamin101001/ageseq' image in the docker dashboard.
+
+In the docker dashboard, click the blue ‘RUN▶️’ button.
+
+Expand the optional setting.
+
+Click the ‘…’ under Host Path, select the parent directory of ‘reads’ directory and ‘target.txt’
+
+Enter ‘/data/’ as ‘Container Path’. You can enter a name for this run as ‘Container Name’.
+
+Hit ‘Run’. Go to the ‘Containers / Apps’ tab on the left panel. Find the run you just launched. If successful, a CSV file containing a summary should be in the same directory as ‘reads’ and ‘target.txt’. If unsuccessful, check the ‘reads’ folder to make sure there are only .fastq files in there.
+
+If you did not specify a Container Name, it will be assigned as a random two words phrase. Don’t panic, just sort the containers by ‘Status’ or ‘Started Time’ to find it. The green logo means it is still running.
+
+Click on the container to see the log. If you can see the progress running like this on the right side of the panel then everything is good. 
 
 ### Inputs
 
